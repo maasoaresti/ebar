@@ -355,8 +355,17 @@ async def create_product(event_id: str, product_data: ProductCreate, current_use
     }
     
     result = await db.products.insert_one(product_dict)
-    product_dict["id"] = str(result.inserted_id)
-    return product_dict
+    
+    return {
+        "id": str(result.inserted_id),
+        "event_id": event_id,
+        "name": product_data.name,
+        "description": product_data.description,
+        "price": product_data.price,
+        "stock": product_data.stock,
+        "image_base64": product_data.image_base64,
+        "available": True
+    }
 
 @api_router.put("/products/{product_id}")
 async def update_product(product_id: str, product_data: ProductCreate, current_user = Depends(get_current_user)):
