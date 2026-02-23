@@ -267,6 +267,8 @@ async def create_event(event_data: EventCreate, current_user = Depends(get_curre
     
     result = await db.events.insert_one(event_dict)
     event_dict["id"] = str(result.inserted_id)
+    # Remove the ObjectId _id field to avoid serialization issues
+    event_dict.pop("_id", None)
     return event_dict
 
 @api_router.get("/events/{event_id}")
