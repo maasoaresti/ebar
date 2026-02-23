@@ -266,10 +266,18 @@ async def create_event(event_data: EventCreate, current_user = Depends(get_curre
     }
     
     result = await db.events.insert_one(event_dict)
-    event_dict["id"] = str(result.inserted_id)
-    # Remove the ObjectId _id field to avoid serialization issues
-    event_dict.pop("_id", None)
-    return event_dict
+    
+    return {
+        "id": str(result.inserted_id),
+        "name": event_data.name,
+        "description": event_data.description,
+        "date": event_data.date,
+        "location": event_data.location,
+        "image_base64": event_data.image_base64,
+        "status": "active",
+        "organizer_id": str(current_user["_id"]),
+        "created_at": event_dict["created_at"]
+    }
 
 @api_router.get("/events/{event_id}")
 async def get_event(event_id: str):
