@@ -450,8 +450,22 @@ async def create_order(order_data: OrderCreate, current_user = Depends(get_curre
             {"$inc": {"stock": -item.quantity}}
         )
     
-    order_dict["id"] = str(result.inserted_id)
-    return order_dict
+    return {
+        "id": str(result.inserted_id),
+        "user_id": str(current_user["_id"]),
+        "event_id": order_data.event_id,
+        "event_name": event["name"],
+        "items": [item.dict() for item in order_data.items],
+        "subtotal": subtotal,
+        "platform_fee": platform_fee,
+        "credits_used": credits_used,
+        "total": total,
+        "organizer_amount": organizer_amount,
+        "payment_status": "paid",
+        "qr_code": qr_code,
+        "status": "pending",
+        "created_at": order_dict["created_at"]
+    }
 
 @api_router.get("/orders")
 async def get_my_orders(current_user = Depends(get_current_user)):
