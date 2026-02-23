@@ -191,7 +191,16 @@ async def register(user_data: UserRegister):
 @api_router.post("/auth/login")
 async def login(credentials: UserLogin):
     user = await db.users.find_one({"email": credentials.email})
-    if not user or not verify_password(credentials.password, user["password_hash"]):
+    logger.info(f"Login attempt for: {credentials.email}")
+    logger.info(f"User found: {user is not None}")
+    
+    if not user:
+        raise HTTPException(status_code=401, detail="Email ou senha incorretos")
+    
+    password_valid = verify_password(credentials.password, user["password_hash"])
+    logger.info(f"Password valid: {password_valid}")
+    
+    if not password_valid:
         raise HTTPException(status_code=401, detail="Email ou senha incorretos")
     
     user_id = str(user["_id"])
